@@ -13,8 +13,8 @@ jobs:
           submodules: false
       - name: Fetch and verify the prepared project
         env:
-          EXPORT_URL: https://github.com/89585143492s-arch/zulu-hotel/releases/download/ios-base-20261017/Zulu_Hotel_iOS_Xcode_BASE_20261017.zip
-          EXPORT_SHA256: 5ae96b205a24812c83ce9501fc11b46f9759aec06a96f2fbea4bc73f6aad3e5e
+          EXPORT_URL: https://github.com/89585143492s-arch/zulu-hotel/releases/download/ios-0.1.1-test-20261017/Zulu_Hotel_iOS_Xcode_0.1.1_20261017.zip
+          EXPORT_SHA256: 031d7cb784187f756a102cc9ec42c95428c2c24d6648e8674a1640cdee1bb6e8
         run: |
           set -euo pipefail
           [[ "$EXPORT_URL" == https://* ]]
