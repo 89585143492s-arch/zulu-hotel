@@ -1,0 +1,6 @@
+*.ipa
+*.zip
+*.ulf
+*.p12
+*.mobileprovision
+.env*

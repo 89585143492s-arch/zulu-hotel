@@ -1,0 +1,40 @@
+name: Compile exported iOS project
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  compile:
+    runs-on: macos-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: false
+      - name: Fetch and verify the prepared project
+        env:
+          EXPORT_URL: https://github.com/89585143492s-arch/zulu-hotel/releases/download/ios-base-20261017/Zulu_Hotel_iOS_Xcode_BASE_20261017.zip
+          EXPORT_SHA256: 5ae96b205a24812c83ce9501fc11b46f9759aec06a96f2fbea4bc73f6aad3e5e
+        run: |
+          set -euo pipefail
+          [[ "$EXPORT_URL" == https://* ]]
+          [[ "$EXPORT_SHA256" =~ ^[[:xdigit:]]{64}$ ]]
+          curl --fail --location --proto '=https' --proto-redir '=https' --retry 2 "$EXPORT_URL" -o ios-export.zip
+          printf '%s  ios-export.zip\n' "$EXPORT_SHA256" | shasum -a 256 -c -
+          mkdir -p build/iOS
+          unzip -q ios-export.zip -d build/iOS
+          test -d build/iOS/Unity-iPhone.xcodeproj
+      - name: Compile unsigned iPhone app
+        run: |
+          xcodebuild -project build/iOS/Unity-iPhone.xcodeproj \
+            -scheme Unity-iPhone -configuration Release -sdk iphoneos \
+            -destination 'generic/platform=iOS' -derivedDataPath build/DerivedData \
+            CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY= build
+      - name: Package unsigned IPA
+        run: bash ci/package-ios-unsigned.sh
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Zulu-Hotel-iPhone-unsigned
+          path: dist/*
+          if-no-files-found: error
+          retention-days: 3
